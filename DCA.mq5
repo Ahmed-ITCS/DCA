@@ -257,5 +257,6 @@ double GetTradeProfitByTicket(ulong ticket)
 if(PositionSelectByTicket(ticket))
 return PositionGetDouble(POSITION_PROFIT);
 return 0.0;
+
 }
 //+------------------------------------------------------------------+
