@@ -39,7 +39,6 @@ def simulate(df, lot_size, loss_trigger, profit_target, symbol="EURUSD"):
                 t['profit'] = (entry_price - price) * pip_value
 
         # Close trades that hit profit target
-        closed_profits = 0
         remaining_trades = []
         for t in open_trades:
             if t['profit'] >= profit_target:
@@ -63,11 +62,11 @@ def simulate(df, lot_size, loss_trigger, profit_target, symbol="EURUSD"):
     net_profit = final_balance - initial_balance
     return round(net_profit, 2), round(final_balance, 2)
 
-# === Optimization Runner ===
-def optimize(csv_path, symbol):
-    df = load_data(csv_path)
-
+# === Optimization on Full Data ===
+def optimize(df, symbol="EURUSD"):
     results = []
+    best_result = None
+
     for lot in [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10]:
         for loss_trigger in [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:
             for profit_target in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]:
@@ -76,14 +75,55 @@ def optimize(csv_path, symbol):
                     'lot_size': lot,
                     'loss_trigger': loss_trigger,
                     'profit_target': profit_target,
-                    'year_end_net_profit': net_profit,
-                    'year_end_net_capital': net_capital
+                    'net_profit': net_profit,
+                    'net_capital': net_capital
                 })
 
     result_df = pd.DataFrame(results)
-    result_df.sort_values(by='year_end_net_profit', ascending=False, inplace=True)
-    print(result_df.head(10))
-    result_df.to_csv('year_end_optimization.csv', index=False)
+    result_df.sort_values(by='net_profit', ascending=False, inplace=True)
+    best_row = result_df.iloc[0]
+    best_params = (best_row['lot_size'], best_row['loss_trigger'], best_row['profit_target'])
+
+    print("Best Parameters Found:")
+    print(best_row)
+
+    result_df.to_csv('full_optimization_results.csv', index=False)
+    return best_params
+
+# === Split Data into Monthly Chunks ===
+def split_monthly(df):
+    return [group for _, group in df.groupby(df['Date'].dt.to_period('M'))]
+
+# === Monthly Simulation with Best Parameters ===
+def monthly_simulation(filepath, symbol="EURUSD"):
+    df = load_data(filepath)
+
+    # Step 1: Optimize on the full dataset
+    best_params = optimize(df, symbol)
+    print(f"\nRunning monthly simulations using best parameters: {best_params}\n")
+
+    # Step 2: Split data into months
+    monthly_chunks = split_monthly(df)
+
+    # Step 3: Run simulation per month
+    results = []
+    for i, month_df in enumerate(monthly_chunks):
+        if len(month_df) < 100:  # Skip incomplete months
+            continue
+        lot_size, loss_trigger, profit_target = best_params
+        net_profit, net_capital = simulate(month_df, lot_size, loss_trigger, profit_target, symbol)
+        results.append({
+            'month': month_df['Date'].iloc[0].strftime('%Y-%m'),
+            'lot_size': lot_size,
+            'loss_trigger': loss_trigger,
+            'profit_target': profit_target,
+            'net_profit': net_profit,
+            'net_capital': net_capital
+        })
+
+    monthly_df = pd.DataFrame(results)
+    print(monthly_df)
+    monthly_df.to_csv('monthly_simulation_results.csv', index=False)
 
 # === Run It ===
-optimize('DATA.csv', 'EURUSD')  # replace with your actual file name
+monthly_simulation('DATA.csv', 'EURUSD')  # replace with your file
