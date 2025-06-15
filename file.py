@@ -1,7 +1,9 @@
 import pandas as pd
 import random
+import logging
 
-# === Parameters ===
+# === Configuration ===
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 initial_balance = 1000
 
 # === Pip Value Calculation ===
@@ -16,19 +18,23 @@ def get_pip_value(symbol, lot_size):
 # === Load Data ===
 def load_data(filepath):
     df = pd.read_csv(filepath)
-    df['Date'] = pd.to_datetime(df['Date'])
+    df['DATE'] = pd.to_datetime(df['DATE'])
     return df
 
-# === Simulate Strategy ===
-def simulate(df, lot_size, loss_trigger, profit_target, symbol="EURUSD"):
+# === Simulate One Year and Track Monthly Performance ===
+def simulate_monthly_tracking(df, lot_size, loss_trigger, profit_target, symbol="EURUSD"):
     balance = initial_balance
     direction = random.choice(['buy', 'sell'])
     open_trades = []
-
     pip_value = get_pip_value(symbol, lot_size)
 
+    monthly_results = {}
+
     for i in range(1, len(df)):
-        price = df.iloc[i]['Close']
+        row = df.iloc[i]
+        price = row['CLOSE']
+        date = row['DATE']
+        month = date.strftime('%Y-%m')
 
         # Update profits
         for t in open_trades:
@@ -38,17 +44,17 @@ def simulate(df, lot_size, loss_trigger, profit_target, symbol="EURUSD"):
             else:
                 t['profit'] = (entry_price - price) * pip_value
 
-        # Close trades that hit profit target
+        # Close profitable trades
         remaining_trades = []
         for t in open_trades:
             if t['profit'] >= profit_target:
                 balance += t['profit']
-                direction = random.choice(['buy', 'sell'])  # reset direction after win
+                direction = random.choice(['buy', 'sell'])
             else:
                 remaining_trades.append(t)
         open_trades = remaining_trades
 
-        # Open new trade if none are open
+        # Open new trade logic
         if len(open_trades) == 0:
             open_trades.append({'entry': price, 'direction': direction, 'profit': 0})
         else:
@@ -56,74 +62,53 @@ def simulate(df, lot_size, loss_trigger, profit_target, symbol="EURUSD"):
             if last_trade['profit'] <= -loss_trigger:
                 open_trades.append({'entry': price, 'direction': direction, 'profit': 0})
 
-    # Final floating profit
-    final_profit = sum([t['profit'] for t in open_trades])
-    final_balance = balance + final_profit
-    net_profit = final_balance - initial_balance
-    return round(net_profit, 2), round(final_balance, 2)
+        # Track monthly performance
+        if month not in monthly_results:
+            monthly_results[month] = {
+                'start_balance': balance,
+                'final_balance': balance
+            }
+        monthly_results[month]['final_balance'] = balance
 
-# === Optimization on Full Data ===
-def optimize(df, symbol="EURUSD"):
-    results = []
-    best_result = None
+    # Add floating profit to the last month's balance
+    final_profit = sum([t['profit'] for t in open_trades])
+    if monthly_results:
+        last_month = max(monthly_results)
+        monthly_results[last_month]['final_balance'] += final_profit
+
+    # Convert results
+    result_list = []
+    for month, data in monthly_results.items():
+        profit = data['final_balance'] - data['start_balance']
+        result_list.append({
+            'month': month,
+            'lot_size': lot_size,
+            'loss_trigger': loss_trigger,
+            'profit_target': profit_target,
+            'net_profit': round(profit, 2),
+            'final_balance': round(data['final_balance'], 2)
+        })
+
+    return result_list
+
+# === Run for All Parameter Combinations ===
+def full_year_parameter_sweep(filepath, symbol="EURUSD"):
+    logging.info(f"Running full-year parameter sweep for {symbol}")
+    df = load_data(filepath)
+
+    all_results = []
 
     for lot in [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10]:
         for loss_trigger in [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:
             for profit_target in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]:
-                net_profit, net_capital = simulate(df, lot, loss_trigger, profit_target, symbol)
-                results.append({
-                    'lot_size': lot,
-                    'loss_trigger': loss_trigger,
-                    'profit_target': profit_target,
-                    'net_profit': net_profit,
-                    'net_capital': net_capital
-                })
+                monthly_results = simulate_monthly_tracking(df, lot, loss_trigger, profit_target, symbol)
+                all_results.extend(monthly_results)
+                logging.info(f"Done: Lot {lot}, Loss {loss_trigger}, TP {profit_target}")
 
-    result_df = pd.DataFrame(results)
-    result_df.sort_values(by='net_profit', ascending=False, inplace=True)
-    best_row = result_df.iloc[0]
-    best_params = (best_row['lot_size'], best_row['loss_trigger'], best_row['profit_target'])
+    result_df = pd.DataFrame(all_results)
+    result_df.to_csv('yearly_split_monthly_results.csv', index=False)
+    logging.info("Saved all results to yearly_split_monthly_results.csv")
 
-    print("Best Parameters Found:")
-    print(best_row)
-
-    result_df.to_csv('full_optimization_results.csv', index=False)
-    return best_params
-
-# === Split Data into Monthly Chunks ===
-def split_monthly(df):
-    return [group for _, group in df.groupby(df['Date'].dt.to_period('M'))]
-
-# === Monthly Simulation with Best Parameters ===
-def monthly_simulation(filepath, symbol="EURUSD"):
-    df = load_data(filepath)
-
-    # Step 1: Optimize on the full dataset
-    best_params = optimize(df, symbol)
-    print(f"\nRunning monthly simulations using best parameters: {best_params}\n")
-
-    # Step 2: Split data into months
-    monthly_chunks = split_monthly(df)
-
-    # Step 3: Run simulation per month
-    results = []
-    for i, month_df in enumerate(monthly_chunks):
-        if len(month_df) < 100:  # Skip incomplete months
-            continue
-        lot_size, loss_trigger, profit_target = best_params
-        net_profit, net_capital = simulate(month_df, lot_size, loss_trigger, profit_target, symbol)
-        results.append({
-            'month': month_df['Date'].iloc[0].strftime('%Y-%m'),
-            'lot_size': lot_size,
-            'loss_trigger': loss_trigger,
-            'profit_target': profit_target,
-            'net_profit': net_profit,
-            'net_capital': net_capital
-        })
-
-    monthly_df = pd.DataFrame(results)
-    print(monthly_df)
-    monthly_df.to_csv('monthly_simulation_results.csv', index=False)
-
-# === Run It ===
-monthly_simulation('DATA.csv', 'EURUSD')  # replace with your file
+# === Execute ===
+if __name__ == '__main__':
+    full_year_parameter_sweep('DATA.csv', 'EURUSD')  # Replace 'DATA.csv' with your actual file path
