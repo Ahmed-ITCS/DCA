@@ -1,9 +1,10 @@
 import pandas as pd
 import random
 import logging
+import os
 
 # === Configuration ===
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Removed global basicConfig to allow dynamic logging per file
 initial_balance = 1000
 
 # === Pip Value Calculation ===
@@ -15,13 +16,46 @@ def get_pip_value(symbol, lot_size):
     else:
         return 10 * lot_size
 
-# === Load Data ===
-def load_data(filepath):
-    df = pd.read_csv(filepath)
-    df['DATE'] = pd.to_datetime(df['DATE'])
-    return df
+def load_data(filepath: str) -> pd.DataFrame:
+    """
+    Load a ticks/quotes file where the four items are
+    Date, Time, Close, Other – separated by *whitespace or semicolons*.
+    Returns a tidy DataFrame with DATE (datetime64) and CLOSE (float).
+    """
 
-# === Simulate One Year and Track Monthly Performance ===
+    # 1️⃣  Read file using a regex separator: any run of whitespace OR ';'
+    df = pd.read_csv(
+        filepath,
+        header=None,
+        sep=r"[;\s]+",          # split on ; or whitespace
+        engine="python",        # needed for regex sep
+        usecols=[0, 1, 2, 3],   # ignore any extra junk columns
+    )
+
+    # 2️⃣  Make sure we have at least the three main columns
+    if df.shape[1] < 3:
+        raise ValueError(f"{filepath}: expected ≥3 columns, got {df.shape[1]}.")
+
+    # 3️⃣  Label the columns we actually care about
+    df.columns = ["Date", "Time", "CLOSE", "Other"]
+
+    # 4️⃣  Combine date+time strings → datetime
+    df["DATE"] = pd.to_datetime(
+        df["Date"].astype(str) + df["Time"].astype(str),
+        format="%Y%m%d%H%M%S",
+        errors="coerce"      # bad rows become NaT (we’ll drop them)
+    )
+
+    # 5️⃣  Force CLOSE to numeric, coercing errors → NaN
+    df["CLOSE"] = pd.to_numeric(df["CLOSE"], errors="coerce")
+
+    # 6️⃣  Drop rows where either DATE or CLOSE couldn’t be parsed
+    df = df.dropna(subset=["DATE", "CLOSE"])
+
+    # 7️⃣  Keep only what the rest of the code needs
+    return df[["DATE", "CLOSE"]].reset_index(drop=True)
+
+
 def simulate_monthly_tracking(df, lot_size, loss_trigger, profit_target, symbol="EURUSD"):
     balance = initial_balance
     direction = random.choice(['buy', 'sell'])
@@ -36,7 +70,7 @@ def simulate_monthly_tracking(df, lot_size, loss_trigger, profit_target, symbol=
         date = row['DATE']
         month = date.strftime('%Y-%m')
 
-        # Update profits
+        # Update profits for all open trades
         for t in open_trades:
             entry_price = t['entry']
             if t['direction'] == 'buy':
@@ -44,23 +78,24 @@ def simulate_monthly_tracking(df, lot_size, loss_trigger, profit_target, symbol=
             else:
                 t['profit'] = (entry_price - price) * pip_value
 
-        # Close profitable trades
-        remaining_trades = []
-        for t in open_trades:
-            if t['profit'] >= profit_target:
-                balance += t['profit']
-                direction = random.choice(['buy', 'sell'])
-            else:
-                remaining_trades.append(t)
-        open_trades = remaining_trades
+        # Calculate total floating profit
+        total_profit = sum(t['profit'] for t in open_trades)
 
-        # Open new trade logic
-        if len(open_trades) == 0:
-            open_trades.append({'entry': price, 'direction': direction, 'profit': 0})
-        else:
+        # Check if total profit reached target → close all trades
+        if open_trades and total_profit >= profit_target:
+            balance += total_profit
+            open_trades = []
+            direction = random.choice(['buy', 'sell'])  # New random direction
+
+        # If last trade loss exceeds loss_trigger → add another trade same direction
+        elif open_trades:
             last_trade = open_trades[-1]
             if last_trade['profit'] <= -loss_trigger:
                 open_trades.append({'entry': price, 'direction': direction, 'profit': 0})
+
+        # If no open trades → open the first trade
+        if not open_trades:
+            open_trades.append({'entry': price, 'direction': direction, 'profit': 0})
 
         # Track monthly performance
         if month not in monthly_results:
@@ -68,15 +103,9 @@ def simulate_monthly_tracking(df, lot_size, loss_trigger, profit_target, symbol=
                 'start_balance': balance,
                 'final_balance': balance
             }
-        monthly_results[month]['final_balance'] = balance
+        monthly_results[month]['final_balance'] = balance + total_profit  # Include floating profit
 
-    # Add floating profit to the last month's balance
-    final_profit = sum([t['profit'] for t in open_trades])
-    if monthly_results:
-        last_month = max(monthly_results)
-        monthly_results[last_month]['final_balance'] += final_profit
-
-    # Convert results
+    # Convert monthly results to list
     result_list = []
     for month, data in monthly_results.items():
         profit = data['final_balance'] - data['start_balance']
@@ -91,24 +120,64 @@ def simulate_monthly_tracking(df, lot_size, loss_trigger, profit_target, symbol=
 
     return result_list
 
-# === Run for All Parameter Combinations ===
-def full_year_parameter_sweep(filepath, symbol="EURUSD"):
-    logging.info(f"Running full-year parameter sweep for {symbol}")
-    df = load_data(filepath)
 
-    all_results = []
+def full_year_parameter_sweep(filepaths, symbol="EURUSD"):
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
-    for lot in [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10]:
-        for loss_trigger in [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:
-            for profit_target in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]:
-                monthly_results = simulate_monthly_tracking(df, lot, loss_trigger, profit_target, symbol)
-                all_results.extend(monthly_results)
-                logging.info(f"Done: Lot {lot}, Loss {loss_trigger}, TP {profit_target}")
+    for filepath in filepaths:
+        filename_base = os.path.basename(filepath).split('.')[0]
+        log_filename = f'{filename_base}_backtest.log'
 
-    result_df = pd.DataFrame(all_results)
-    result_df.to_csv('yearly_split_monthly_results.csv', index=False)
-    logging.info("Saved all results to yearly_split_monthly_results.csv")
+        if logger.hasHandlers():
+            logger.handlers.clear()
+
+        file_handler = logging.FileHandler(log_filename)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
+
+        logger.info(f"Processing file: {filepath}")
+        df = load_data(filepath)
+
+        # Track monthly results for this file
+        all_monthly_results = {}
+
+        for lot in [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10]:
+            for loss_trigger in [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:
+                for profit_target in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]:
+                    monthly_results = simulate_monthly_tracking(df, lot, loss_trigger, profit_target, symbol)
+                    for res in monthly_results:
+                        month = res['month']
+                        if month not in all_monthly_results:
+                            all_monthly_results[month] = []
+                        all_monthly_results[month].append(res)
+                    logger.info(f"Done: Lot {lot}, Loss {loss_trigger}, TP {profit_target} for {filepath}")
+
+        # Save results by month
+        for month, results in all_monthly_results.items():
+            out_path = f'{filename_base}_{month}_results.csv'
+            pd.DataFrame(results).to_csv(out_path, index=False)
+            logger.info(f"Saved monthly results to: {out_path}")
 
 # === Execute ===
 if __name__ == '__main__':
-    full_year_parameter_sweep('DATA.csv', 'EURUSD')  # Replace 'DATA.csv' with your actual file path
+    data_files = [
+        '/Users/ahmed/Desktop/backtest/DATA1.csv',
+        '/Users/ahmed/Desktop/backtest/DATA2.csv',
+        '/Users/ahmed/Desktop/backtest/DATA3.csv',
+        '/Users/ahmed/Desktop/backtest/DATA4.csv',
+        '/Users/ahmed/Desktop/backtest/DATA5.csv',
+        '/Users/ahmed/Desktop/backtest/DATA6.csv',
+        '/Users/ahmed/Desktop/backtest/DATA7.csv',
+        '/Users/ahmed/Desktop/backtest/DATA8.csv',
+        '/Users/ahmed/Desktop/backtest/DATA9.csv',
+        '/Users/ahmed/Desktop/backtest/DATA10.csv',
+        '/Users/ahmed/Desktop/backtest/DATA11.csv',
+        '/Users/ahmed/Desktop/backtest/DATA12.csv'
+    ]
+    full_year_parameter_sweep(data_files, 'EURUSD')

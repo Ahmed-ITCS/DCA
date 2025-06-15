@@ -1,0 +1,69 @@
+2025-06-15 17:18:53,087 - INFO - Processing file: /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:30:12,697 - INFO - Processing file: /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:34:02,627 - INFO - Processing file: /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:35:46,270 - INFO - Processing file: /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:37:43,356 - INFO - Processing file: /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:38:13,220 - INFO - Processing file: /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:38:18,669 - INFO - Processing file: /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:39:30,364 - INFO - Processing file: /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:40:08,258 - INFO - Done: Lot 0.01, Loss 5, TP 10 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:40:38,102 - INFO - Done: Lot 0.01, Loss 5, TP 20 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:41:08,917 - INFO - Done: Lot 0.01, Loss 5, TP 30 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:41:39,375 - INFO - Done: Lot 0.01, Loss 5, TP 40 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:42:08,740 - INFO - Done: Lot 0.01, Loss 5, TP 50 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:42:37,957 - INFO - Done: Lot 0.01, Loss 5, TP 60 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:43:12,685 - INFO - Done: Lot 0.01, Loss 5, TP 70 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:43:50,068 - INFO - Done: Lot 0.01, Loss 5, TP 80 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:44:19,394 - INFO - Done: Lot 0.01, Loss 5, TP 90 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:44:48,618 - INFO - Done: Lot 0.01, Loss 5, TP 100 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:45:17,833 - INFO - Done: Lot 0.01, Loss 10, TP 10 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:45:46,947 - INFO - Done: Lot 0.01, Loss 10, TP 20 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:46:17,296 - INFO - Done: Lot 0.01, Loss 10, TP 30 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:46:46,037 - INFO - Done: Lot 0.01, Loss 10, TP 40 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:47:14,954 - INFO - Done: Lot 0.01, Loss 10, TP 50 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:47:44,508 - INFO - Done: Lot 0.01, Loss 10, TP 60 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:48:14,204 - INFO - Done: Lot 0.01, Loss 10, TP 70 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:48:43,871 - INFO - Done: Lot 0.01, Loss 10, TP 80 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:49:13,500 - INFO - Done: Lot 0.01, Loss 10, TP 90 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:49:42,668 - INFO - Done: Lot 0.01, Loss 10, TP 100 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:50:11,688 - INFO - Done: Lot 0.01, Loss 15, TP 10 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:50:40,676 - INFO - Done: Lot 0.01, Loss 15, TP 20 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:51:10,079 - INFO - Done: Lot 0.01, Loss 15, TP 30 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:51:39,256 - INFO - Done: Lot 0.01, Loss 15, TP 40 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:52:09,521 - INFO - Done: Lot 0.01, Loss 15, TP 50 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:52:39,511 - INFO - Done: Lot 0.01, Loss 15, TP 60 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:53:08,932 - INFO - Done: Lot 0.01, Loss 15, TP 70 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:53:38,214 - INFO - Done: Lot 0.01, Loss 15, TP 80 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:54:08,545 - INFO - Done: Lot 0.01, Loss 15, TP 90 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:54:39,062 - INFO - Done: Lot 0.01, Loss 15, TP 100 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:55:08,458 - INFO - Done: Lot 0.01, Loss 20, TP 10 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:55:38,423 - INFO - Done: Lot 0.01, Loss 20, TP 20 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:56:07,583 - INFO - Done: Lot 0.01, Loss 20, TP 30 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:56:36,767 - INFO - Done: Lot 0.01, Loss 20, TP 40 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:57:06,074 - INFO - Done: Lot 0.01, Loss 20, TP 50 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:57:35,414 - INFO - Done: Lot 0.01, Loss 20, TP 60 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:58:05,000 - INFO - Done: Lot 0.01, Loss 20, TP 70 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:58:36,638 - INFO - Done: Lot 0.01, Loss 20, TP 80 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:59:06,105 - INFO - Done: Lot 0.01, Loss 20, TP 90 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 17:59:45,443 - INFO - Processing file: /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:00:20,912 - INFO - Done: Lot 0.01, Loss 5, TP 10 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:00:51,439 - INFO - Done: Lot 0.01, Loss 5, TP 20 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:01:20,344 - INFO - Done: Lot 0.01, Loss 5, TP 30 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:01:49,736 - INFO - Done: Lot 0.01, Loss 5, TP 40 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:02:18,760 - INFO - Done: Lot 0.01, Loss 5, TP 50 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:02:48,398 - INFO - Done: Lot 0.01, Loss 5, TP 60 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:03:18,448 - INFO - Done: Lot 0.01, Loss 5, TP 70 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:03:47,924 - INFO - Done: Lot 0.01, Loss 5, TP 80 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:04:17,409 - INFO - Done: Lot 0.01, Loss 5, TP 90 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:04:46,944 - INFO - Done: Lot 0.01, Loss 5, TP 100 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:05:17,143 - INFO - Done: Lot 0.01, Loss 10, TP 10 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:05:46,885 - INFO - Done: Lot 0.01, Loss 10, TP 20 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:06:16,491 - INFO - Done: Lot 0.01, Loss 10, TP 30 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:06:45,895 - INFO - Done: Lot 0.01, Loss 10, TP 40 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:07:15,441 - INFO - Done: Lot 0.01, Loss 10, TP 50 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:07:45,119 - INFO - Done: Lot 0.01, Loss 10, TP 60 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:08:14,572 - INFO - Done: Lot 0.01, Loss 10, TP 70 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:08:44,112 - INFO - Done: Lot 0.01, Loss 10, TP 80 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:09:13,639 - INFO - Done: Lot 0.01, Loss 10, TP 90 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:09:44,077 - INFO - Done: Lot 0.01, Loss 10, TP 100 for /Users/ahmed/Desktop/backtest/DATA1.csv
+2025-06-15 18:10:19,736 - INFO - Done: Lot 0.01, Loss 15, TP 10 for /Users/ahmed/Desktop/backtest/DATA1.csv
